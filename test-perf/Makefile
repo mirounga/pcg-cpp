@@ -19,23 +19,31 @@
 # visit http://www.pcg-random.org/.
 #
 
-all:
-	cd test-perf; $(MAKE)
-	cd test-high; $(MAKE)
-	cd sample; $(MAKE)
+TARGETS           = test-perf
 
-PREFIX = /usr/local
+# special flags for some compilers
+CPPFLAGS_clang++ += \
+	-Weverything \
+	-Wno-unknown-warning-option \
+	-Wno-c++98-compat \
+	-Wno-c++98-compat-pedantic \
+	-Wno-date-time \
+	-Wno-undef \
+	-Wno-header-hygiene \
+	-Wno-unused-macros
 
-install: all
-	install -d $(DESTDIR)$(PREFIX)/include
-	install -m 0644 include/*.hpp $(DESTDIR)$(PREFIX)/include
+CPPFLAGS += -I../include -Wall -Wextra $(CPPFLAGS_$(CXX))
+CXXFLAGS += -march=native -std=c++11 -ggdb
+CC       = $(CXX)       # Cheat so that linking uses the C++ compiler
 
-test:   all
-	cd test-high; $(MAKE) test
+all: $(TARGETS)
+
+test: $(TARGETS)
+	sh run-tests.sh
 
 clean:
-	cd test-high; $(MAKE) clean
-	cd test-perf; $(MAKE) clean
-	cd sample; $(MAKE) clean
+	rm -f *.o $(TARGETS)
+	rm -rf actual
 
-	
+test-perf.o: test-perf.cpp ../include/pcg_random.hpp \
+  ../include/pcg_fill.hpp ../include/pcg_fill_sve2.hpp
