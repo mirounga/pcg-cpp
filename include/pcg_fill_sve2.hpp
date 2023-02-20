@@ -92,23 +92,31 @@ namespace pcg_fill {
 		svuint64_t _cur_mult = _pcg_mult;
 		svuint64_t _cur_plus = _inc;
 
-		_acc_mult0 = svdup_u64(1ull);
-		_acc_plus0 = svdup_u64(0ull);
+		_acc_mult0 = _acc_mult1 = svdup_u64(1ull);
+		_acc_plus0 = _acc_plus1 = svdup_u64(0ull);
 		
-		for (svuint64_t _delta = svindex_u64(0ull, 1ull); svptest_any(all_b64, svcmpne_n_u64(all_b64, _delta, 0ull)); _delta = svlsr_n_u64_x(all_b64, _delta, 1ull)) {
-			svbool_t pg = svcmpne_n_u64(all_b64,
-				svlsl_n_u64_x(all_b64, _delta, 63ull), 
+		for (svuint64_t _delta0 = svindex_u64(1ull, 1ull), _delta1 = svqadd_n_u64(_delta0, svcntd());
+			svptest_any(all_b64, svcmpne_n_u64(all_b64, _delta1, 0ull));
+			_delta0 = svlsr_n_u64_x(all_b64, _delta0, 1ull),
+			_delta1 = svlsr_n_u64_x(all_b64, _delta1, 1ull))
+		{
+			svbool_t pg0 = svcmpne_n_u64(all_b64,
+				svlsl_n_u64_x(all_b64, _delta0, 63ull), 
 				0ull);
 
-			_acc_mult0 = svmul_u64_m(pg, _acc_mult0, _cur_mult);
-			_acc_plus0 = svmad_u64_m(pg, _acc_plus0, _cur_mult, _cur_plus);
+			svbool_t pg1 = svcmpne_n_u64(all_b64,
+				svlsl_n_u64_x(all_b64, _delta1, 63ull), 
+				0ull);
+
+			_acc_mult0 = svmul_u64_m(pg0, _acc_mult0, _cur_mult);
+			_acc_plus0 = svmad_u64_m(pg0, _acc_plus0, _cur_mult, _cur_plus);
+
+			_acc_mult1 = svmul_u64_m(pg1, _acc_mult1, _cur_mult);
+			_acc_plus1 = svmad_u64_m(pg1, _acc_plus1, _cur_mult, _cur_plus);
 
 			_cur_plus = svmad_u64_z(all_b64, _cur_mult, _cur_plus, _cur_plus);
 			_cur_mult = svmul_u64_z(all_b64, _cur_mult, _cur_mult);
 		}
-
-		_acc_mult1 = svmul_u64_m(all_b64, _acc_mult0, _cur_mult);
-		_acc_plus1 = svmad_u64_m(all_b64, _acc_plus0, _cur_mult, _cur_plus);
 	}
 
 	PCG_ALWAYS_INLINE void _preadvance_twisted(const svuint64_t _pcg_mult, const svuint64_t _inc, svuint64_t& _acc_mult0, svuint64_t& _acc_plus0, svuint64_t& _acc_mult1, svuint64_t& _acc_plus1)
@@ -118,25 +126,30 @@ namespace pcg_fill {
 		svuint64_t _cur_mult = _pcg_mult;
 		svuint64_t _cur_plus = _inc;
 
-		_acc_mult0 = svdup_u64(1ull);
-		_acc_plus0 = svdup_u64(0ull);
+		_acc_mult0 = _acc_mult1 = svdup_u64(1ull);
+		_acc_plus0 = _acc_plus1 = svdup_u64(0ull);
 
-		_acc_mult1 = _cur_mult;
-		_acc_plus1 = _cur_plus;
-		
-		for (svuint64_t _delta = svindex_u64(0ull, 1ull); svptest_any(all_b64, svcmpne_n_u64(all_b64, _delta, 0ull)); _delta = svlsr_n_u64_x(all_b64, _delta, 1ull)) {
-			_cur_plus = svmad_u64_z(all_b64, _cur_mult, _cur_plus, _cur_plus);
-			_cur_mult = svmul_u64_z(all_b64, _cur_mult, _cur_mult);
-
-			svbool_t pg = svcmpne_n_u64(all_b64,
-				svlsl_n_u64_x(all_b64, _delta, 63ull), 
+		for (svuint64_t _delta0 = svindex_u64(2ull, 2ull), _delta1 = svindex_u64(1ull, 2ull);
+			svptest_any(all_b64, svcmpne_n_u64(all_b64, _delta0, 0ull)); 
+			_delta0 = svlsr_n_u64_x(all_b64, _delta0, 1ull),
+			_delta1 = svlsr_n_u64_x(all_b64, _delta1, 1ull)) 
+		{
+			svbool_t pg0 = svcmpne_n_u64(all_b64,
+				svlsl_n_u64_x(all_b64, _delta0, 63ull), 
 				0ull);
 
-			_acc_mult0 = svmul_u64_m(pg, _acc_mult0, _cur_mult);
-			_acc_plus0 = svmad_u64_m(pg, _acc_plus0, _cur_mult, _cur_plus);
+			svbool_t pg1 = svcmpne_n_u64(all_b64,
+				svlsl_n_u64_x(all_b64, _delta1, 63ull), 
+				0ull);
 
-			_acc_mult1 = svmul_u64_m(pg, _acc_mult1, _cur_mult);
-			_acc_plus1 = svmad_u64_m(pg, _acc_plus1, _cur_mult, _cur_plus);
+			_acc_mult0 = svmul_u64_m(pg0, _acc_mult0, _cur_mult);
+			_acc_plus0 = svmad_u64_m(pg0, _acc_plus0, _cur_mult, _cur_plus);
+
+			_acc_mult1 = svmul_u64_m(pg1, _acc_mult1, _cur_mult);
+			_acc_plus1 = svmad_u64_m(pg1, _acc_plus1, _cur_mult, _cur_plus);
+
+			_cur_plus = svmad_u64_z(all_b64, _cur_mult, _cur_plus, _cur_plus);
+			_cur_mult = svmul_u64_z(all_b64, _cur_mult, _cur_mult);
 		}
 	}
 
@@ -146,7 +159,6 @@ namespace pcg_fill {
 
 		const svuint32_t _ldexpf32 = svdup_u32(0x70000000);
 		const svuint32_t _signmask32 = svdup_u32(0x7fffffff);
-
 
 		svfloat32_t _frand = svcvt_f32_u32_z(all_b32, _rand);
 
@@ -233,22 +245,25 @@ namespace pcg_fill {
 
 		const svbool_t all_b32 = svptrue_b32();
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+		
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b32, writemask = svwhilelt_b32(i, size)); i += svcntw())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state, _acc_mult0, _acc_plus0);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state, _acc_mult1, _acc_plus1);
+
+			svuint64_t _advance = svdup_lane_u64(_state00, tail);
+			_state00 = svsplice_u64(pg_tail, _state, _state00);
+			_state = _advance;
 
 			svuint32_t _rand = _xsh_rr(_state00, _state01);
 
 			svfloat32_t _frand = _make_float(_low, _range, _rand);
 
 			svst1_f32(writemask, ptr + i, _frand);
-
-			_state = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult, _inc),
-				svcntd() - 1);
 		}
 
 		rng.advance(size);
@@ -285,16 +300,28 @@ namespace pcg_fill {
 		_preadvance_straight(_mult1, _inc1, _acc_mult10, _acc_plus10, _acc_mult11, _acc_plus11);
 
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+		
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b64, writemask = svwhilelt_b64(i, size)); i += svcntd())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state0, _acc_mult00, _acc_plus00);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state0, _acc_mult01, _acc_plus01);
 
 			svuint64_t _state10 = svmad_u64_z(all_b64, _state1, _acc_mult10, _acc_plus10);
-
 			svuint64_t _state11 = svmad_u64_z(all_b64, _state1, _acc_mult11, _acc_plus11);
+
+			svuint64_t _advance0 = svdup_lane_u64(_state01, tail);
+			_state01 = svsplice_u64(pg_tail, _state00, _state01);
+			_state00 = svsplice_u64(pg_tail, _state0, _state00);
+			_state0 = _advance0;
+
+			svuint64_t _advance1 = svdup_lane_u64(_state11, tail);
+			_state11 = svsplice_u64(pg_tail, _state10, _state11);
+			_state10 = svsplice_u64(pg_tail, _state1, _state10);
+			_state1 = _advance1;
 
 			svuint32_t _rand0 = _xsh_rr(_state00, _state01);
 
@@ -312,14 +339,6 @@ namespace pcg_fill {
 			writemask = svwhilelt_b64(i, size);
 
 			svst1_f64(writemask, ptr + i, _frand1);
-
-			_state0 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult0, _inc0),
-				svcntd() - 1);
-
-			_state1 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state11, _mult1, _inc1),
-				svcntd() - 1);
 		}
 
 		rng0.advance(size);
@@ -368,22 +387,25 @@ namespace pcg_fill {
 
 		const svbool_t all_b32 = svptrue_b32();
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b32, writemask = svwhilelt_b32(i, size)); i += svcntw())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state, _acc_mult0, _acc_plus0);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state, _acc_mult1, _acc_plus1);
+
+			svuint64_t _advance = svdup_lane_u64(_state00, tail);
+			_state00 = svsplice_u64(pg_tail, _state, _state00);
+			_state = _advance;
 
 			svuint32_t _rand = _xsh_rs(_state00, _state01);
 
 			svfloat32_t _frand = _make_float(_low, _range, _rand);
 
 			svst1_f32(writemask, ptr + i, _frand);
-
-			_state = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult, _inc),
-				svcntd() - 1);
 		}
 
 		rng.advance(size);
@@ -420,16 +442,28 @@ namespace pcg_fill {
 		_preadvance_straight(_mult1, _inc1, _acc_mult10, _acc_plus10, _acc_mult11, _acc_plus11);
 
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+		
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b64, writemask = svwhilelt_b64(i, size)); i += svcntd())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state0, _acc_mult00, _acc_plus00);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state0, _acc_mult01, _acc_plus01);
 
 			svuint64_t _state10 = svmad_u64_z(all_b64, _state1, _acc_mult10, _acc_plus10);
-
 			svuint64_t _state11 = svmad_u64_z(all_b64, _state1, _acc_mult11, _acc_plus11);
+
+			svuint64_t _advance0 = svdup_lane_u64(_state01, tail);
+			_state01 = svsplice_u64(pg_tail, _state00, _state01);
+			_state00 = svsplice_u64(pg_tail, _state0, _state00);
+			_state0 = _advance0;
+
+			svuint64_t _advance1 = svdup_lane_u64(_state11, tail);
+			_state11 = svsplice_u64(pg_tail, _state10, _state11);
+			_state10 = svsplice_u64(pg_tail, _state1, _state10);
+			_state1 = _advance1;
 
 			svuint32_t _rand0 = _xsh_rs(_state00, _state01);
 
@@ -447,14 +481,6 @@ namespace pcg_fill {
 			writemask = svwhilelt_b64(i, size);
 
 			svst1_f64(writemask, ptr + i, _frand1);
-
-			_state0 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult0, _inc0),
-				svcntd() - 1);
-
-			_state1 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state11, _mult1, _inc1),
-				svcntd() - 1);
 		}
 
 		rng0.advance(size);
@@ -509,22 +535,25 @@ namespace pcg_fill {
 
 		const svbool_t all_b32 = svptrue_b32();
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b32, writemask = svwhilelt_b32(i, size)); i += svcntw())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state, _acc_mult0, _acc_plus0);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state, _acc_mult1, _acc_plus1);
+
+			svuint64_t _advance = svdup_lane_u64(_state00, tail);
+			_state00 = svsplice_u64(pg_tail, _state, _state00);
+			_state = _advance;
 
 			svuint32_t _rand = _rxs_m(_state00, _state01);
 
 			svfloat32_t _frand = _make_float(_low, _range, _rand);
 
 			svst1_f32(writemask, ptr + i, _frand);
-
-			_state = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult, _inc),
-				svcntd() - 1);
 		}
 
 		rng.advance(size);
@@ -561,16 +590,28 @@ namespace pcg_fill {
 		_preadvance_straight(_mult1, _inc1, _acc_mult10, _acc_plus10, _acc_mult11, _acc_plus11);
 
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b64, writemask = svwhilelt_b64(i, size)); i += svcntd())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state0, _acc_mult00, _acc_plus00);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state0, _acc_mult01, _acc_plus01);
 
 			svuint64_t _state10 = svmad_u64_z(all_b64, _state1, _acc_mult10, _acc_plus10);
-
 			svuint64_t _state11 = svmad_u64_z(all_b64, _state1, _acc_mult11, _acc_plus11);
+
+			svuint64_t _advance0 = svdup_lane_u64(_state01, tail);
+			_state01 = svsplice_u64(pg_tail, _state00, _state01);
+			_state00 = svsplice_u64(pg_tail, _state0, _state00);
+			_state0 = _advance0;
+
+			svuint64_t _advance1 = svdup_lane_u64(_state11, tail);
+			_state11 = svsplice_u64(pg_tail, _state10, _state11);
+			_state10 = svsplice_u64(pg_tail, _state1, _state10);
+			_state1 = _advance1;
 
 			svuint32_t _rand0 = _rxs_m(_state00, _state01);
 
@@ -588,14 +629,6 @@ namespace pcg_fill {
 			writemask = svwhilelt_b64(i, size);
 
 			svst1_f64(writemask, ptr + i, _frand1);
-
-			_state0 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult0, _inc0),
-				svcntd() - 1);
-
-			_state1 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state11, _mult1, _inc1),
-				svcntd() - 1);
 		}
 
 		rng0.advance(size);
@@ -656,22 +689,25 @@ namespace pcg_fill {
 
 		const svbool_t all_b32 = svptrue_b32();
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b32, writemask = svwhilelt_b32(i, size)); i += svcntw())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state, _acc_mult0, _acc_plus0);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state, _acc_mult1, _acc_plus1);
+
+			svuint64_t _advance = svdup_lane_u64(_state00, tail);
+			_state00 = svsplice_u64(pg_tail, _state, _state00);
+			_state = _advance;
 
 			svuint32_t _rand = _dxsm(_state00, _state01);
 
 			svfloat32_t _frand = _make_float(_low, _range, _rand);
 
 			svst1_f32(writemask, ptr + i, _frand);
-
-			_state = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult, _inc),
-				svcntd() - 1);
 		}
 
 		rng.advance(size);
@@ -708,16 +744,28 @@ namespace pcg_fill {
 		_preadvance_straight(_mult1, _inc1, _acc_mult10, _acc_plus10, _acc_mult11, _acc_plus11);
 
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b64, writemask = svwhilelt_b64(i, size)); i += svcntd())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state0, _acc_mult00, _acc_plus00);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state0, _acc_mult01, _acc_plus01);
 
 			svuint64_t _state10 = svmad_u64_z(all_b64, _state1, _acc_mult10, _acc_plus10);
-
 			svuint64_t _state11 = svmad_u64_z(all_b64, _state1, _acc_mult11, _acc_plus11);
+
+			svuint64_t _advance0 = svdup_lane_u64(_state01, tail);
+			_state01 = svsplice_u64(pg_tail, _state00, _state01);
+			_state00 = svsplice_u64(pg_tail, _state0, _state00);
+			_state0 = _advance0;
+
+			svuint64_t _advance1 = svdup_lane_u64(_state11, tail);
+			_state11 = svsplice_u64(pg_tail, _state10, _state11);
+			_state10 = svsplice_u64(pg_tail, _state1, _state10);
+			_state1 = _advance1;
 
 			svuint32_t _rand0 = _dxsm(_state00, _state01);
 
@@ -735,14 +783,6 @@ namespace pcg_fill {
 			writemask = svwhilelt_b64(i, size);
 
 			svst1_f64(writemask, ptr + i, _frand1);
-
-			_state0 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult0, _inc0),
-				svcntd() - 1);
-
-			_state1 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state11, _mult1, _inc1),
-				svcntd() - 1);
 		}
 
 		rng0.advance(size);
@@ -787,22 +827,25 @@ namespace pcg_fill {
 
 		const svbool_t all_b32 = svptrue_b32();
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b32, writemask = svwhilelt_b32(i, size)); i += svcntw())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state, _acc_mult0, _acc_plus0);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state, _acc_mult1, _acc_plus1);
+
+			svuint64_t _advance = svdup_lane_u64(_state00, tail);
+			_state00 = svsplice_u64(pg_tail, _state, _state00);
+			_state = _advance;
 
 			svuint32_t _rand = _xsl_rr(_state00, _state01);
 
 			svfloat32_t _frand = _make_float(_low, _range, _rand);
 
 			svst1_f32(writemask, ptr + i, _frand);
-
-			_state = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult, _inc),
-				svcntd() - 1);
 		}
 
 		rng.advance(size);
@@ -839,16 +882,28 @@ namespace pcg_fill {
 		_preadvance_straight(_mult1, _inc1, _acc_mult10, _acc_plus10, _acc_mult11, _acc_plus11);
 
 		const svbool_t all_b64 = svptrue_b64();
+
+		const uint64_t tail = svcntd() - 1ull;
+		const svbool_t pg_tail = svcmpeq_n_u64(all_b64, svindex_u64(0ull, 1ull), tail);
+
 		svbool_t writemask;
 		for (size_t i = 0; svptest_first(all_b64, writemask = svwhilelt_b64(i, size)); i += svcntd())
 		{
 			svuint64_t _state00 = svmad_u64_z(all_b64, _state0, _acc_mult00, _acc_plus00);
-
 			svuint64_t _state01 = svmad_u64_z(all_b64, _state0, _acc_mult01, _acc_plus01);
 
 			svuint64_t _state10 = svmad_u64_z(all_b64, _state1, _acc_mult10, _acc_plus10);
-
 			svuint64_t _state11 = svmad_u64_z(all_b64, _state1, _acc_mult11, _acc_plus11);
+
+			svuint64_t _advance0 = svdup_lane_u64(_state01, tail);
+			_state01 = svsplice_u64(pg_tail, _state00, _state01);
+			_state00 = svsplice_u64(pg_tail, _state0, _state00);
+			_state0 = _advance0;
+
+			svuint64_t _advance1 = svdup_lane_u64(_state11, tail);
+			_state11 = svsplice_u64(pg_tail, _state10, _state11);
+			_state10 = svsplice_u64(pg_tail, _state1, _state10);
+			_state1 = _advance1;
 
 			svuint32_t _rand0 = _xsl_rr(_state00, _state01);
 
@@ -866,14 +921,6 @@ namespace pcg_fill {
 			writemask = svwhilelt_b64(i, size);
 
 			svst1_f64(writemask, ptr + i, _frand1);
-
-			_state0 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state01, _mult0, _inc0),
-				svcntd() - 1);
-
-			_state1 = svdup_lane_u64(
-				svmad_u64_z(all_b64, _state11, _mult1, _inc1),
-				svcntd() - 1);
 		}
 
 		rng0.advance(size);

@@ -26,16 +26,16 @@ namespace pcg_fill {
 
 	PCG_ALWAYS_INLINE __m512i _mm512_ziplo_epi32(const __m512i _a, const __m512i _b)
 	{
-		const __m512i _a0 = _mm512_shuffle_epi32(_a, 0xd8);
-		const __m512i _b0 = _mm512_shuffle_epi32(_b, 0xd8);
+		const __m512i _a0 = _mm512_shuffle_epi32(_a, _MM_PERM_ENUM::_MM_PERM_DBCA);
+		const __m512i _b0 = _mm512_shuffle_epi32(_b, _MM_PERM_ENUM::_MM_PERM_DBCA);
 
 		return _mm512_unpacklo_epi32(_a0, _b0);
 	}
 
 	PCG_ALWAYS_INLINE __m512i _mm512_ziphi_epi32(const __m512i _a, const __m512i _b)
 	{
-		const __m512i _a0 = _mm512_shuffle_epi32(_a, 0xd8);
-		const __m512i _b0 = _mm512_shuffle_epi32(_b, 0xd8);
+		const __m512i _a0 = _mm512_shuffle_epi32(_a, _MM_PERM_ENUM::_MM_PERM_DBCA);
+		const __m512i _b0 = _mm512_shuffle_epi32(_b, _MM_PERM_ENUM::_MM_PERM_DBCA);
 
 		return _mm512_unpackhi_epi32(_a0, _b0);
 	}
@@ -48,34 +48,35 @@ namespace pcg_fill {
 		_acc_mult0 = _mm512_set1_epi64(1ull);
 		_acc_plus0 = _mm512_setzero_si512();
 
-		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0xaa, _acc_mult0, _cur_mult);
-		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0xaa, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x55, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x55, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
 		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
 		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
 
-		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0xcc, _acc_mult0, _cur_mult);
-		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0xcc, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x66, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x66, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
 		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
 		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
 
-		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0xf0, _acc_mult0, _cur_mult);
-		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0xf0, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x78, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x78, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
 		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
 		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
 
-		_acc_mult1 = _mm512_mullo_epi64(_acc_mult0, _cur_mult);
-		_acc_plus1 = _mm512_add_epi64(_mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
+		_acc_mult1 = _mm512_mask_mullo_epi64(_acc_mult0, 0x7f, _acc_mult0, _cur_mult);
+		_acc_plus1 = _mm512_mask_add_epi64(_acc_plus0, 0x7f, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
-		//for (int di = 0; di < 8; di++)
-		//	std::cout << _acc_mult0.m512i_u64[di] << "\t";
-		//std::cout << std::endl;
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x80, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x80, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
-		//for (int di = 0; di < 8; di++)
-		//	std::cout << _acc_plus0.m512i_u64[di] << "\t";
-		//std::cout << std::endl;
+		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
+		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
+
+		_acc_mult1 = _mm512_mask_mullo_epi64(_acc_mult1, 0x80, _acc_mult1, _cur_mult);
+		_acc_plus1 = _mm512_mask_add_epi64(_acc_plus1, 0x80, _mm512_mullo_epi64(_acc_plus1, _cur_mult), _cur_plus);
 	}
 
 	PCG_ALWAYS_INLINE void _preadvance_twisted(const __m512i _pcg_mult, const __m512i _inc, __m512i& _acc_mult0, __m512i& _acc_plus0, __m512i& _acc_mult1, __m512i& _acc_plus1)
@@ -92,8 +93,8 @@ namespace pcg_fill {
 		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
 		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
 
-		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0xaa, _acc_mult0, _cur_mult);
-		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0xaa, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x55, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x55, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
 		_acc_mult1 = _mm512_mask_mullo_epi64(_acc_mult1, 0xaa, _acc_mult1, _cur_mult);
 		_acc_plus1 = _mm512_mask_add_epi64(_acc_plus1, 0xaa, _mm512_mullo_epi64(_acc_plus1, _cur_mult), _cur_plus);
@@ -101,8 +102,8 @@ namespace pcg_fill {
 		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
 		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
 
-		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0xcc, _acc_mult0, _cur_mult);
-		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0xcc, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x66, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x66, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
 		_acc_mult1 = _mm512_mask_mullo_epi64(_acc_mult1, 0xcc, _acc_mult1, _cur_mult);
 		_acc_plus1 = _mm512_mask_add_epi64(_acc_plus1, 0xcc, _mm512_mullo_epi64(_acc_plus1, _cur_mult), _cur_plus);
@@ -110,11 +111,17 @@ namespace pcg_fill {
 		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
 		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
 
-		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0xf0, _acc_mult0, _cur_mult);
-		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0xf0, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x78, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x78, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 
 		_acc_mult1 = _mm512_mask_mullo_epi64(_acc_mult1, 0xf0, _acc_mult1, _cur_mult);
 		_acc_plus1 = _mm512_mask_add_epi64(_acc_plus1, 0xf0, _mm512_mullo_epi64(_acc_plus1, _cur_mult), _cur_plus);
+
+		_cur_plus = _mm512_add_epi64(_mm512_mullo_epi64(_cur_mult, _cur_plus), _cur_plus);
+		_cur_mult = _mm512_mullo_epi64(_cur_mult, _cur_mult);
+
+		_acc_mult0 = _mm512_mask_mullo_epi64(_acc_mult0, 0x80, _acc_mult0, _cur_mult);
+		_acc_plus0 = _mm512_mask_add_epi64(_acc_plus0, 0x80, _mm512_mullo_epi64(_acc_plus0, _cur_mult), _cur_plus);
 	}
 
 	PCG_ALWAYS_INLINE __m512 _make_float(__m512 _low, __m512 _range, __m512i _rand01)
@@ -179,7 +186,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512 _range = _mm512_set1_ps(range);
 		const __m512 _low = _mm512_set1_ps(low);
@@ -202,17 +210,17 @@ namespace pcg_fill {
 
 			__m512i _state01 = _mm512_add_epi64(_mm512_mullo_epi64(_state, _acc_mult1), _acc_plus1);
 
+			__m512i _advance = _mm512_permutexvar_epi64(_tail, _state00);
+
+			_state00 = _mm512_permutex2var_epi64(_state, _body, _state00);
+
+			_state = _advance;
+
 			__m512i _rand01 = _xsh_rr(_state00, _state01);
 
 			 __m512 _frand01 = _make_float(_low, _range, _rand01);
 
 			_mm512_storeu_ps(ptr + i, _frand01);
-
-			_state = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state01, _mult),
-					_inc));
 		}
 
 		rng.advance(size16);
@@ -231,7 +239,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512d _range = _mm512_set1_pd(range);
 		const __m512d _low = _mm512_set1_pd(low);
@@ -268,13 +277,29 @@ namespace pcg_fill {
 
 			__m512i _state11 = _mm512_add_epi64(_mm512_mullo_epi64(_state1, _acc_mult11), _acc_plus11);
 
+			__m512i _advance0 = _mm512_permutexvar_epi64(_tail, _state01);
+
+			__m512i _advance1 = _mm512_permutexvar_epi64(_tail, _state11);
+
+			_state01 = _mm512_permutex2var_epi64(_state00, _body, _state01);
+
+			_state00 = _mm512_permutex2var_epi64(_state0, _body, _state00);
+
+			_state11 = _mm512_permutex2var_epi64(_state10, _body, _state11);
+
+			_state10 = _mm512_permutex2var_epi64(_state1, _body, _state10);
+
+			_state0 = _advance0;
+
+			_state1 = _advance1;
+
 			__m512i _rand0 = _mm512_shuffle_epi32(
 				_xsh_rr(_state00, _state01),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512i _rand1 = _mm512_shuffle_epi32(
 				_xsh_rr(_state10, _state11),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 			 
 			__m512d _frand0 = _make_double(_low, _range,
 				_mm512_unpacklo_epi32(_rand0, _rand1));
@@ -285,19 +310,6 @@ namespace pcg_fill {
 			_mm512_storeu_pd(ptr + i, _frand0);
 
 			_mm512_storeu_pd(ptr + i + 8, _frand1);
-
-			_state0 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(
-						_state01, _mult0),
-					_inc0));
-
-			_state1 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state11, _mult1),
-					_inc1));
 		}
 
 		rng0.advance(size16);
@@ -335,7 +347,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512 _range = _mm512_set1_ps(range);
 		const __m512 _low = _mm512_set1_ps(low);
@@ -357,17 +370,17 @@ namespace pcg_fill {
 
 			__m512i _state01 = _mm512_add_epi64(_mm512_mullo_epi64(_state, _acc_mult1), _acc_plus1);
 
+			__m512i _advance = _mm512_permutexvar_epi64(_tail, _state00);
+
+			_state00 = _mm512_permutex2var_epi64(_state, _body, _state00);
+
+			_state = _advance;
+
 			__m512i _rand = _xsh_rs(_state00, _state01);
 
 			__m512 _frand = _make_float(_low, _range, _rand);
 
 			_mm512_storeu_ps(ptr + i, _frand);
-
-			_state = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state01, _mult),
-					_inc));
 		}
 
 		rng.advance(size16);
@@ -386,8 +399,9 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
-
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
+ 
 		const __m512d _range = _mm512_set1_pd(range);
 		const __m512d _low = _mm512_set1_pd(low);
 
@@ -423,13 +437,29 @@ namespace pcg_fill {
 
 			__m512i _state11 = _mm512_add_epi64(_mm512_mullo_epi64(_state1, _acc_mult11), _acc_plus11);
 
+			__m512i _advance0 = _mm512_permutexvar_epi64(_tail, _state01);
+
+			__m512i _advance1 = _mm512_permutexvar_epi64(_tail, _state11);
+
+			_state01 = _mm512_permutex2var_epi64(_state00, _body, _state01);
+
+			_state00 = _mm512_permutex2var_epi64(_state0, _body, _state00);
+
+			_state11 = _mm512_permutex2var_epi64(_state10, _body, _state11);
+
+			_state10 = _mm512_permutex2var_epi64(_state1, _body, _state10);
+
+			_state0 = _advance0;
+
+			_state1 = _advance1;
+
 			__m512i _rand0 = _mm512_shuffle_epi32(
 				_xsh_rs(_state00, _state01),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512i _rand1 = _mm512_shuffle_epi32(
 				_xsh_rs(_state10, _state11),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512d _frand0 = _make_double(_low, _range,
 				_mm512_unpacklo_epi32(_rand0, _rand1));
@@ -440,19 +470,6 @@ namespace pcg_fill {
 			_mm512_storeu_pd(ptr + i, _frand0);
 
 			_mm512_storeu_pd(ptr + i + 8, _frand1);
-
-			_state0 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(
-						_state01, _mult0),
-					_inc0));
-
-			_state1 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state11, _mult1),
-					_inc1));
 		}
 
 		rng0.advance(size16);
@@ -496,7 +513,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512 _range = _mm512_set1_ps(range);
 		const __m512 _low = _mm512_set1_ps(low);
@@ -519,17 +537,17 @@ namespace pcg_fill {
 
 			__m512i _state01 = _mm512_add_epi64(_mm512_mullo_epi64(_state, _acc_mult1), _acc_plus1);
 
+			__m512i _advance = _mm512_permutexvar_epi64(_tail, _state00);
+
+			_state00 = _mm512_permutex2var_epi64(_state, _body, _state00);
+
+			_state = _advance;
+
 			__m512i _rand = _rxs_m(_state00, _state01);
 
 			__m512 _frand = _make_float(_low, _range, _rand);
 
 			_mm512_storeu_ps(ptr + i, _frand);
-
-			_state = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state01, _mult),
-					_inc));
 		}
 
 		rng.advance(size16);
@@ -548,7 +566,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512d _range = _mm512_set1_pd(range);
 		const __m512d _low = _mm512_set1_pd(low);
@@ -585,13 +604,29 @@ namespace pcg_fill {
 
 			__m512i _state11 = _mm512_add_epi64(_mm512_mullo_epi64(_state1, _acc_mult11), _acc_plus11);
 
+			__m512i _advance0 = _mm512_permutexvar_epi64(_tail, _state01);
+
+			__m512i _advance1 = _mm512_permutexvar_epi64(_tail, _state11);
+
+			_state01 = _mm512_permutex2var_epi64(_state00, _body, _state01);
+
+			_state00 = _mm512_permutex2var_epi64(_state0, _body, _state00);
+
+			_state11 = _mm512_permutex2var_epi64(_state10, _body, _state11);
+
+			_state10 = _mm512_permutex2var_epi64(_state1, _body, _state10);
+
+			_state0 = _advance0;
+
+			_state1 = _advance1;
+
 			__m512i _rand0 = _mm512_shuffle_epi32(
 				_rxs_m(_state00, _state01),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512i _rand1 = _mm512_shuffle_epi32(
 				_rxs_m(_state10, _state11),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512d _frand0 = _make_double(_low, _range,
 				_mm512_unpacklo_epi32(_rand0, _rand1));
@@ -602,19 +637,6 @@ namespace pcg_fill {
 			_mm512_storeu_pd(ptr + i, _frand0);
 
 			_mm512_storeu_pd(ptr + i + 8, _frand1);
-
-			_state0 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(
-						_state01, _mult0),
-					_inc0));
-
-			_state1 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state11, _mult1),
-					_inc1));
 		}
 
 		rng0.advance(size16);
@@ -633,8 +655,8 @@ namespace pcg_fill {
 		const __m512i _one = _mm512_set1_epi32(1);
 		const __m512i _multiplier = _mm512_set1_epi32(static_cast<uint32_t>(pcg_detail::cheap_multiplier<uint64_t>::multiplier()));
 
-		const __m512i _s0 = _mm512_shuffle_epi32(_state0, 0xd8);
-		const __m512i _s1 = _mm512_shuffle_epi32(_state1, 0xd8);
+		const __m512i _s0 = _mm512_shuffle_epi32(_state0, _MM_PERM_ENUM::_MM_PERM_DBCA);
+		const __m512i _s1 = _mm512_shuffle_epi32(_state1, _MM_PERM_ENUM::_MM_PERM_DBCA);
 
 		__m512i _hi = _mm512_unpackhi_epi32(_s0, _s1);
 
@@ -662,7 +684,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512 _range = _mm512_set1_ps(range);
 		const __m512 _low = _mm512_set1_ps(low);
@@ -684,18 +707,18 @@ namespace pcg_fill {
 			__m512i _state00 = _mm512_add_epi64(_mm512_mullo_epi64(_state, _acc_mult0), _acc_plus0);
 
 			__m512i _state01 = _mm512_add_epi64(_mm512_mullo_epi64(_state, _acc_mult1), _acc_plus1);
+			
+			__m512i _advance = _mm512_permutexvar_epi64(_tail, _state00);
+
+			_state00 = _mm512_permutex2var_epi64(_state, _body, _state00);
+
+			_state = _advance;
 
 			__m512i _rand = _dxsm(_state00, _state01);
 
 			__m512 _frand = _make_float(_low, _range, _rand);
 
 			_mm512_storeu_ps(ptr + i, _frand);
-
-			_state = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state01, _mult),
-					_inc));
 		}
 
 		rng.advance(size16);
@@ -714,7 +737,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512d _range = _mm512_set1_pd(range);
 		const __m512d _low = _mm512_set1_pd(low);
@@ -751,13 +775,29 @@ namespace pcg_fill {
 
 			__m512i _state11 = _mm512_add_epi64(_mm512_mullo_epi64(_state1, _acc_mult11), _acc_plus11);
 
+			__m512i _advance0 = _mm512_permutexvar_epi64(_tail, _state01);
+
+			__m512i _advance1 = _mm512_permutexvar_epi64(_tail, _state11);
+
+			_state01 = _mm512_permutex2var_epi64(_state00, _body, _state01);
+
+			_state00 = _mm512_permutex2var_epi64(_state0, _body, _state00);
+
+			_state11 = _mm512_permutex2var_epi64(_state10, _body, _state11);
+
+			_state10 = _mm512_permutex2var_epi64(_state1, _body, _state10);
+
+			_state0 = _advance0;
+
+			_state1 = _advance1;
+
 			__m512i _rand0 = _mm512_shuffle_epi32(
 				_dxsm(_state00, _state01),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512i _rand1 = _mm512_shuffle_epi32(
 				_dxsm(_state10, _state11),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512d _frand0 = _make_double(_low, _range,
 				_mm512_unpacklo_epi32(_rand0, _rand1));
@@ -768,19 +808,6 @@ namespace pcg_fill {
 			_mm512_storeu_pd(ptr + i, _frand0);
 
 			_mm512_storeu_pd(ptr + i + 8, _frand1);
-
-			_state0 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(
-						_state01, _mult0),
-					_inc0));
-
-			_state1 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state11, _mult1),
-					_inc1));
 		}
 
 		rng0.advance(size16);
@@ -796,8 +823,8 @@ namespace pcg_fill {
 
 	PCG_ALWAYS_INLINE __m512i _xsl_rr(const __m512i _state0, const __m512i _state1)
 	{
-		const __m512i _s0 = _mm512_shuffle_epi32(_state0, 0xd8);
-		const __m512i _s1 = _mm512_shuffle_epi32(_state1, 0xd8);
+		const __m512i _s0 = _mm512_shuffle_epi32(_state0, _MM_PERM_ENUM::_MM_PERM_DBCA);
+		const __m512i _s1 = _mm512_shuffle_epi32(_state1, _MM_PERM_ENUM::_MM_PERM_DBCA);
 
 		const __m512i _lo = _mm512_unpacklo_epi32(_s0, _s1);
 
@@ -815,7 +842,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512 _range = _mm512_set1_ps(range);
 		const __m512 _low = _mm512_set1_ps(low);
@@ -838,17 +866,17 @@ namespace pcg_fill {
 
 			__m512i _state01 = _mm512_add_epi64(_mm512_mullo_epi64(_state, _acc_mult1), _acc_plus1);
 
+			__m512i _advance = _mm512_permutexvar_epi64(_tail, _state00);
+
+			_state00 = _mm512_permutex2var_epi64(_state, _body, _state00);
+
+			_state = _advance;
+
 			__m512i _rand = _xsl_rr(_state00, _state01);
 
 			__m512 _frand = _make_float(_low, _range, _rand);
 
 			_mm512_storeu_ps(ptr + i, _frand);
-
-			_state = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state01, _mult),
-					_inc));
 		}
 
 		rng.advance(size16);
@@ -867,7 +895,8 @@ namespace pcg_fill {
 
 		const size_t size16 = size & ~0x0f;
 
-		const __m512i _seven = _mm512_set1_epi64(7ull);
+		const __m512i _tail = _mm512_set1_epi64(7ull);
+		const __m512i _body = _mm512_set_epi64(14, 13, 12, 11, 10, 9, 8, 7);
 
 		const __m512d _range = _mm512_set1_pd(range);
 		const __m512d _low = _mm512_set1_pd(low);
@@ -904,13 +933,29 @@ namespace pcg_fill {
 
 			__m512i _state11 = _mm512_add_epi64(_mm512_mullo_epi64(_state1, _acc_mult11), _acc_plus11);
 
+			__m512i _advance0 = _mm512_permutexvar_epi64(_tail, _state01);
+
+			__m512i _advance1 = _mm512_permutexvar_epi64(_tail, _state11);
+
+			_state01 = _mm512_permutex2var_epi64(_state00, _body, _state01);
+
+			_state00 = _mm512_permutex2var_epi64(_state0, _body, _state00);
+
+			_state11 = _mm512_permutex2var_epi64(_state10, _body, _state11);
+
+			_state10 = _mm512_permutex2var_epi64(_state1, _body, _state10);
+
+			_state0 = _advance0;
+
+			_state1 = _advance1;
+
 			__m512i _rand0 = _mm512_shuffle_epi32(
 				_xsl_rr(_state00, _state01),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512i _rand1 = _mm512_shuffle_epi32(
 				_xsl_rr(_state10, _state11),
-				0xd8);
+				_MM_PERM_ENUM::_MM_PERM_DBCA);
 
 			__m512d _frand0 = _make_double(_low, _range,
 				_mm512_unpacklo_epi32(_rand0, _rand1));
@@ -921,19 +966,6 @@ namespace pcg_fill {
 			_mm512_storeu_pd(ptr + i, _frand0);
 
 			_mm512_storeu_pd(ptr + i + 8, _frand1);
-
-			_state0 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(
-						_state01, _mult0),
-					_inc0));
-
-			_state1 = _mm512_permutexvar_epi64(
-				_seven,
-				_mm512_add_epi64(
-					_mm512_mullo_epi64(_state11, _mult1),
-					_inc1));
 		}
 
 		rng0.advance(size16);
